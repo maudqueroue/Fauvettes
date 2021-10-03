@@ -1,0 +1,23 @@
+Package: Fauvettes
+Title: Mon travail sur les fauvettes
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Maud",
+           family = "Queroue",
+           role = c("aut", "cre"),
+           email = "maud.queroue@gmail.com")
+Description: Premier essai de RC sur mon travail sur les fauvettes. . Je ne sais pas si ca va marcher mais ce sera un test interessant.
+License: MIT + file LICENSE
+ByteCompile: true
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    devtools,
+    sp,
+    ggplot2,
+    here,
+    AER,
+    nimble,
+    magrittr
