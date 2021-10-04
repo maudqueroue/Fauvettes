@@ -4,49 +4,52 @@ rm(list=ls())
 devtools::install_deps(upgrade="never")
 
 # Load fonctions importantes
-devtools::load_all() 
+devtools::load_all()
 
-#EPS
-load(here::here("output","CLC_EPS.RData"))
+# Les differents points EPS avec leur longitude et latitude et type CLC
+load(here::here("output","data_EPS.RData"))
+geo_EPS <- data_EPS %>%
+  dplyr::rename(
+    long = 'longitude_wgs84',
+    lat  = 'latitude_wgs84') %>%
+  dplyr::distinct(point, .keep_all=T) %>%
+  dplyr::select("point", "long", "lat") %>%
+  dplyr::filter(!is.na(long)) %>%
+  dplyr::filter(!is.na(lat))
 
-# STOC
-load(here::here("output","CLC_STOC.RData"))
+rm(data_EPS)
+
+# Les differents points STOC avec leur longitude et latitude et type CLC
+
+geo_STOC <- read.table(here::here("data","coord_STOC.csv"),head=T,sep=";") %>%
+  dplyr::rename(
+    long = 'Lon',
+    lat  = 'Lat')
 
 
 # Creation des couche de points
-dsf_STOC <-  Mesanges::give_point(CLC_STOC)
-dsf_EPS <-  Mesanges::give_point(CLC_EPS)
+dsf_STOC <-  Fauvettes::give_point(geo_STOC)
+dsf_EPS <-  Fauvettes::give_point(geo_EPS)
 
 
 # Point par par station STOC
 EPS_by_STOC <- list()
-for (i in 1:nrow(CLC_STOC)) {
-  EPS_by_STOC[[i]] <- Mesanges::give_point_by_site(dsf_STOC[i,], 25, CLC_EPS, dsf_EPS)
+for (i in 1:nrow(geo_STOC)) {
+  EPS_by_STOC[[i]] <- Fauvettes::give_point_by_site(dsf_STOC[i,], 25, geo_EPS, dsf_EPS)
 }
 
 save(EPS_by_STOC, file  = here::here("output","EPS_by_STOC.RData"))
 
 
-###### Carte
-
-# Load Corine Land Cover
-shp_CLC <- sf::st_read(dsn   = here::here("data","CLC12_FR_RGF_SHP"),
-                       layer = "CLC12_FR_RGF") %>%
-  sf::st_transform(shp,crs = 2154)
-
-load(here::here("output","EPS_by_STOC.RData"))
-
-Mesanges::plot_carte(25, dsf_STOC, CLC_EPS, 25, shp_CLC)
-
 ##### Info en supplément
 
 EPS_by_STOC <- list()
-for (i in 1:nrow(CLC_STOC)) {
-  EPS_by_STOC[[i]] <- Mesanges::give_point_by_site(dsf_STOC[i,], 25, CLC_EPS)
+for (i in 1:nrow(geo_STOC)) {
+  EPS_by_STOC[[i]] <- Fauvettes::give_point_by_site(dsf_STOC[i,], 25, geo_EPS)
 }
 
 a <- NULL
-for (i in 1:nrow(CLC_STOC)) {
+for (i in 1:nrow(geo_STOC)) {
   a[i] <- length(EPS_by_STOC[[i]])
 }
 

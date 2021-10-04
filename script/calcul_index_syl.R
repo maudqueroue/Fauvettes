@@ -8,53 +8,53 @@ color<-c("#FF8830","#A6B06D","#589482","#8C2423")
 devtools::install_deps(upgrade="never")
 
 # Load fonctions importantes
-devtools::load_all() 
+devtools::load_all()
 
-# Les donnees EPS
+# Les differents points EPS avec leur longitude et latitude
 load(here::here("output","data_EPS.RData"))
-data_EPS <- data_EPS %>%
+geo_EPS <- data_EPS %>%
   dplyr::filter(data_EPS$annee != 1914) %>%
   dplyr::rename(
     long = 'longitude_wgs84',
     lat  = 'latitude_wgs84') %>%
+  dplyr::distinct(point, .keep_all=T) %>%
+  dplyr::select("point", "long", "lat") %>%
   dplyr::filter(!is.na(long)) %>%
-  dplyr::filter(!is.na(lat)) %>%
+  dplyr::filter(!is.na(lat))  %>%
   replace(is.na(.), 0)
 
-# Type d'habitat pour chaque station STOC
-load(here::here("output","CLC_STOC.RData"))
+geo_EPS <- data_EPS
+rm(data_EPS)
 
-# Type d'habitat pour chaque station EPS
-load(here::here("output","CLC_EPS.RData"))
+# Les differents points STOC avec leur longitude et latitude
+
+geo_STOC <- read.table(here::here("data","coord_STOC.csv"),head=T,sep=";") %>%
+  dplyr::rename(
+    long = 'Lon',
+    lat  = 'Lat')
 
 # Les points d'ecoute (juste leurs identifiants) pour chaque station STOC dans un rayon de 25km
 load(here::here("output","EPS_by_STOC.RData"))
 
-# On lie les tables CLC_EPS et data_EPS
-EPS <- dplyr::left_join(data_EPS, CLC_EPS, by = c("point", "lat", "long")) %>%
-  dplyr::rename(CLC_EPS = 'CLC_hab')  %>%
-  dplyr::select(-CLC_1) %>%
-  dplyr::select(-CLC_2)
 
 # Table finale
 # selectionner les point concernant la station,
 # ajouter une colonne avec le nom de la station
 # lier les nouveaux tableaux
 
-data <- data.frame("carre" = NA, "annee" = NA, "point" = NA, long= as.numeric("NA"), lat =as.numeric("NA"), PARCAE = as.numeric("NA"), PARMAJ = as.numeric("NA"), SYLATR = as.numeric("NA"), SYLBOR = as.numeric("NA"), CLC_EPS = as.numeric("NA"), ID_PROG = "NA", CLC_STOC = "NA")
+data <- data.frame("carre" = NA, "annee" = NA, "point" = NA, long= as.numeric("NA"), lat =as.numeric("NA"), PARCAE = as.numeric("NA"), PARMAJ = as.numeric("NA"), SYLATR = as.numeric("NA"), SYLBOR = as.numeric("NA"), ID_PROG = "NA")
 # warnings "NA" pas importants
-for (i in 1:nrow(CLC_STOC)) {
-  data_add <- EPS %>%
-    dplyr::filter(EPS$point %in% EPS_by_STOC[[i]]) %>%
-    tibble::add_column(ID_PROG = as.character(CLC_STOC$ID_PROG[i])) %>%
-    tibble::add_column(CLC_STOC = as.character(CLC_STOC$CLC_hab[i]))
-  
+for (i in 1:nrow(geo_STOC)) {
+  data_add <- geo_EPS %>%
+    dplyr::filter(geo_EPS$point %in% EPS_by_STOC[[i]]) %>%
+    tibble::add_column(ID_PROG = as.character(geo_STOC$ID_PROG[i]))
+
   data <- dplyr::bind_rows(data, data_add)
 }
 
-rm(data_add, EPS_by_STOC, CLC_EPS, CLC_STOC, EPS, i)
+rm(data_add, EPS_by_STOC, geo_EPS, geo_STOC, i)
 
-# Avec les donnees de TITS
+# Avec les donnees de SYL
 #############################
 
 load(here::here("output","hvie_ID_PROG_syl.RData"))
@@ -76,7 +76,7 @@ save(data_syl,file=here::here('output','data_syl.RData'))
 # CREATION INDEX
 ##############################################################################################
 
-### SYLBOR 
+### SYLBOR
 index_sylbor_point <- Mesanges::index_new(data_syl, "SYLBOR")
 save(index_sylbor_point,file=here::here("output","index_sylbor_point.RData"))
 load(here::here("output","index_sylbor_point.RData"))
