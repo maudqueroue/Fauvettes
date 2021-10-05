@@ -17,14 +17,9 @@ geo_EPS <- data_EPS %>%
   dplyr::rename(
     long = 'longitude_wgs84',
     lat  = 'latitude_wgs84') %>%
-  dplyr::distinct(point, .keep_all=T) %>%
-  dplyr::select("point", "long", "lat") %>%
   dplyr::filter(!is.na(long)) %>%
   dplyr::filter(!is.na(lat))  %>%
   replace(is.na(.), 0)
-
-geo_EPS <- data_EPS
-rm(data_EPS)
 
 # Les differents points STOC avec leur longitude et latitude
 
@@ -59,15 +54,15 @@ rm(data_add, EPS_by_STOC, geo_EPS, geo_STOC, i)
 
 load(here::here("output","hvie_ID_PROG_syl.RData"))
 ID_PROG_syl <- hvie_ID_PROG_syl$ID_PROG
-# On ne garde que les sites utilises dans les donnees parmaj
+# On ne garde que les sites utilises dans les donnees syl
 data_syl <- data %>%
   dplyr::filter(data$ID_PROG %in% ID_PROG_syl)
 
 rm(hvie_ID_PROG_syl, ID_PROG_syl, data_EPS)
 
-# On supprime les points qui n'ont jamais contacté de mesanges
-data_syl <- Mesanges::supr_point(data_syl, "SYL")
-# on supprime les doublons
+# # On supprime les points qui n'ont jamais contacté de fauvettes
+ data_syl <- Fauvettes::supr_point(data_syl, "SYL")
+# # on supprime les doublons
 data_syl <- data_syl %>% dplyr::distinct(carre,annee,point,.keep_all = TRUE)
 
 save(data_syl,file=here::here('output','data_syl.RData'))
@@ -77,16 +72,16 @@ save(data_syl,file=here::here('output','data_syl.RData'))
 ##############################################################################################
 
 ### SYLBOR
-index_sylbor_point <- Mesanges::index_new(data_syl, "SYLBOR")
+index_sylbor_point <- Fauvettes::index_new(data_syl, "SYLBOR")
 save(index_sylbor_point,file=here::here("output","index_sylbor_point.RData"))
 load(here::here("output","index_sylbor_point.RData"))
-Mesanges::plot_index(index_sylbor_point[[1]], sqrt(index_sylbor_point[[2]]), color[3], "sylbor", "point" )
+Fauvettes::plot_index(index_sylbor_point[[1]], sqrt(index_sylbor_point[[2]]), color[3], "sylbor", "point" )
 
 ### SYLATR
-index_sylatr_point <- Mesanges::index_new(data_syl, "SYLATR")
+index_sylatr_point <- Fauvettes::index_new(data_syl, "SYLATR")
 save(index_sylatr_point,file=here::here("output","index_sylatr_point.RData"))
 load(here::here("output","index_sylatr_point.RData"))
-Mesanges::plot_index(index_sylatr_point[[1]], sqrt(index_sylatr_point[[2]]), color[1], "sylatr", "point" )
+Fauvettes::plot_index(index_sylatr_point[[1]], sqrt(index_sylatr_point[[2]]), color[1], "sylatr", "point" )
 
 
 ##############################################################################################

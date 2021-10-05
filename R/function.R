@@ -772,3 +772,19 @@ link_hvie <- function(hvie_sp, hvie_PROG) {
   return(hvie_sp)
 }
 
+plot_index <- function(mean, sd, col, sp, hab) {
+
+  df <- data.frame(years = 2:19,
+                   logy = mean,
+                   sigma = sd)
+  df %>%
+    ggplot2::ggplot() +
+    ggplot2::aes(x = as.numeric(years), y = logy) +
+    ggplot2::geom_line(col = col,size = 2) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = logy - 2 * sigma,
+                                      ymax = logy + 2 * sigma), alpha = 0.25, fill = col) +
+    ggplot2::labs(title = paste("Variations annuelles index log y [t], pour ",sp," dans habitat ", hab, sep=""),
+                  y = 'log(yt)') +
+    ggplot2::scale_x_continuous(name="years", breaks=seq(1,19,3),labels=seq(2001,2019,3))+
+    ggplot2::theme_minimal()
+}

@@ -75,6 +75,7 @@ nb_capt <- NULL
 juv <- NULL
 ad <- NULL
 ad_rec <- NULL
+ad_juv <- NULL
 
 for(i in 1:nrow(data)){
   nb_capt[i] <- length(which(data[i,1:K]>0))
@@ -108,6 +109,7 @@ nb_capt <- NULL
 juv <- NULL
 ad <- NULL
 ad_rec <- NULL
+ad_juv <- NULL
 
 for(i in 1:nrow(data)){
   nb_capt[i] <- length(which(data[i,1:K]>0))
