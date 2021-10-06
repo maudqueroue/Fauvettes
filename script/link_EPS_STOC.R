@@ -19,7 +19,7 @@ geo_EPS <- data_EPS %>%
 
 rm(data_EPS)
 
-# Les differents points STOC avec leur longitude et latitude et type CLC
+# Les differents points STOC avec leur longitude et latitude
 
 geo_STOC <- read.table(here::here("data","coord_STOC.csv"),head=T,sep=";") %>%
   dplyr::rename(

@@ -4,18 +4,18 @@ rm(list=ls())
 devtools::install_deps(upgrade="never")
 
 # Load fonctions importantes
-devtools::load_all() 
+devtools::load_all()
 
 
 # Carte France
 #-------------------
 
-Fr <- sf::st_read(dsn = here::here('data','France'), 
+Fr <- sf::st_read(dsn = here::here('data','France'),
                   layer = "DEPARTEMENT",
-                  quiet = TRUE) %>% 
-  tibble::add_column(PAYS = "FR") %>% 
-  sf::st_transform(4326) %>% 
-  dplyr::group_by(PAYS)%>% 
+                  quiet = TRUE) %>%
+  tibble::add_column(PAYS = "FR") %>%
+  sf::st_transform(4326) %>%
+  dplyr::group_by(PAYS)%>%
   dplyr::summarize()
 
 #STOC
@@ -23,7 +23,16 @@ Fr <- sf::st_read(dsn = here::here('data','France'),
 # Load sites
 load(here::here('output','hvie_ID_PROG_syl.RData'))
 
-data_STOC <-  hvie_ID_PROG_syl %>%
+# Les differents points STOC avec leur longitude et latitude et type CLC
+
+geo_STOC <- read.table(here::here("data","coord_STOC.csv"),head=T,sep=";") %>%
+  dplyr::rename(
+    long = 'Lon',
+    lat  = 'Lat')
+
+# Que pour Syl
+data_STOC <-  geo_STOC %>%
+  dplyr::filter(geo_STOC$ID_PROG %in% unique(hvie_ID_PROG_syl$ID_PROG)) %>%
   dplyr::select('lat','long')
 data_STOC$type <- "STOC"
 
@@ -39,14 +48,14 @@ data_EPS <- data_syl %>%
 
 data_EPS$type <- "EPS"
 
-#data complet 
+#data complet
 #---------------
 data <- rbind(data_EPS,data_STOC)
 
 # Carte
 #----------------
 ggplot2::ggplot(Fr) +
-  ggplot2::xlab("") + 
+  ggplot2::xlab("") +
   ggplot2::ylab("") +
   ggplot2::xlim(-4.5, 7.8) +
   ggplot2::ylim(42.5,51) +
